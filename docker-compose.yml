@@ -15,3 +15,10 @@ services:
     volumes:
       - './satisfactory:/satisfactory'
       - './config:/home/steam/.config/Epic'
+    user: "${DOCKER_USER}:${DOCKER_GROUP}"   # Set the user and group from environment variables
+    healthcheck:
+      test: telnet 127.0.0.1 7777 || exit 1
+      start_period: 180s
+      timeout: 10s
+      interval: 10s
+      retries: 3
