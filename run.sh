@@ -1,1 +1,1 @@
-screen -dmS satisfactory sudo docker compose up
+sudo docker compose up -d
