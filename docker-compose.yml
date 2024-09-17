@@ -1,6 +1,9 @@
 version: '3.9'
 services:
   satisfactory-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: 'satisfactory-arm64'
     container_name: 'satisfactory-server'
     ports:
