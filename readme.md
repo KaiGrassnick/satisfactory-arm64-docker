@@ -18,36 +18,48 @@ Even by increasing the uobject limit wont fix this issue :(
 
 1. **Download or Clone Repository**:
    Download or clone this repository to your desired folder, for example, `satisfactory-server`.
+   ```sh
+   https://github.com/RisedSky/satisfactory-arm64-docker.git
+   ```
 
-2. **Set Up Permissions**:
+3. **Set Up Permissions**:
    Create a folder named `satisfactory` and `config` (your savegame and server config will be stored in there) and grant full permissions to it:
 
    - Using `chmod`:
-     ```
+     ```sh
      sudo chmod 777 satisfactory
      sudo chmod 777 config
      ```
    - Using `chown` (replace **USER_ID:GROUP_ID** with the desired user's IDs, for example, `1000:1000`):
-     ```
+     ```sh
      sudo chown -R USER_ID:GROUP_ID satisfactory
      sudo chown -R USER_ID:GROUP_ID config
      ```
      (On Oracle Cloud Infrastructure (OCI), by default, the user with the ID `1000:1000` is `opc`. However, since this user is primarily intended for the setup process, it is advisable to utilize the `ubuntu` user with IDs `1001:1001`)
+   - Change the file `.env` to set the user and the group id for the container :
+      To show the current user and group id :
+     ```sh
+     cat .env
+     ```
+     To edit it :
+     ```sh
+     vi .env
+     ```
 
-3. **Build the Docker Image**:
+4. **Build the Docker Image**:
    Run the build script:
 
-   ```
+   ```sh
    sh build.sh
    ```
 
    If execution permission is denied, grant it:
 
    ```
-   chmod +x build.sh
+   chmod u+x build.sh
    ```
 
-4. **Run the Docker Image**:
+5. **Run the Docker Image**:
    After the build process completes, start the Docker image either by running:
 
    ```
@@ -60,14 +72,14 @@ Even by increasing the uobject limit wont fix this issue :(
    sudo docker compose up -d
    ```
 
-5. **Open Necessary Ports**:
+6. **Open Necessary Ports**:
    The following ports must be opened for the server to function properly:
 
    - TCP: `7777`
    - UDP: `7777`
      Ensure these ports are open using the Linux firewall of your choice and also within the Security List of the Oracle Cloud Infrastructure Network.
 
-6. **Default Port**:
+7. **Default Port**:
    The default port for the server is `7777`.
 
 Now your Satisfactory Dedicated Server for ARM64 is ready!. Enjoy your gaming experience with friends.
