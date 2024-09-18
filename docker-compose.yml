@@ -18,8 +18,8 @@ services:
       - './satisfactory:/satisfactory'
       - './config:/home/steam/.config/Epic'
     healthcheck:
-      test: telnet 127.0.0.1 7777 || exit 1
-      start_period: 180s
+      test: bash ./healthcheck.sh
+      interval: 30s
       timeout: 10s
-      interval: 10s
       retries: 3
+      start_period: 120s

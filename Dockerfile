@@ -103,5 +103,7 @@ RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.t
 # Double-check permissions of init-server.sh
 RUN ls -alh /home/steam/init-server.sh
 
+EXPOSE 7777/udp 7777/tcp
+
 # Execute init-server.sh on container startup using JSON format for ENTRYPOINT
 ENTRYPOINT ["/home/steam/init-server.sh"]
