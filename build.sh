@@ -1,1 +1,1 @@
-docker build --build-arg USER_ID=$(grep USER_ID .env | cut -d '=' -f2) --build-arg GROUP_ID=$(grep GROUP_ID .env | cut -d '=' -f2) -t satisfactory-arm64 .
+docker build --build-arg DOCKER_USER=$(grep DOCKER_USER .env | cut -d '=' -f2) --build-arg DOCKER_GROUP=$(grep DOCKER_GROUP .env | cut -d '=' -f2) -t satisfactory-arm64 .

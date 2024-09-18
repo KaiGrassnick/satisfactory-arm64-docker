@@ -67,15 +67,15 @@ FROM ubuntu:22.04
 ARG DOCKER_USER
 ARG DOCKER_GROUP
 
-ENV USER_ID=${USER_ID}
-ENV GROUP_ID=${GROUP_ID}
+ENV DOCKER_USER=${DOCKER_USER}
+ENV DOCKER_GROUP=${DOCKER_GROUP}
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install only the necessary runtime dependencies
 RUN apt update && apt install -y curl sudo expect-dev binfmt-support systemd
 
 # Create steam user
-RUN useradd -m -u ${USER_ID} -g ${GROUP_ID} steam
+RUN useradd -m -u ${DOCKER_USER} -g ${DOCKER_GROUP} steam
 
 # Copy the compiled FEX from the build stage to the runtime stage
 COPY --from=build /usr /usr
