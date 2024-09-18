@@ -20,6 +20,7 @@ Even by increasing the uobject limit wont fix this issue :(
    Download or clone this repository to your desired folder, for example, `satisfactory-server`.
    ```sh
    git clone https://github.com/RisedSky/satisfactory-arm64-docker.git
+   cd satisfactory-arm64-docker
    ```
 
 3. **Set Up Permissions**:
