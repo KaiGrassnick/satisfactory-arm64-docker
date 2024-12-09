@@ -97,6 +97,12 @@ ENV STEAM_PATH=/home/steam/Steam
 RUN mkdir -p "${STEAM_PATH}" \
     && chown -R steam:steam "${STEAM_PATH}"
 
+ENV STEAM_CONFIG_PATH=/home/steam/.config
+
+# Create the Steam config directory and set ownership
+RUN mkdir -p "${STEAM_CONFIG_PATH}" \
+    && chown -R steam:steam "${STEAM_CONFIG_PATH}"
+
 # Copy init-server.sh to the steam user's home directory
 COPY ./init-server.sh /home/steam/init-server.sh
 
