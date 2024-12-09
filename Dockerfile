@@ -106,11 +106,19 @@ RUN chown steam:steam /home/steam/init-server.sh \
     && chmod 755 /home/steam/init-server.sh \
     && chmod +x /home/steam/init-server.sh
 
+# Create the sfserver directory and set ownership
+RUN mkdir -p /home/steam/sfserver \
+    && chown -R steam:steam /home/steam/sfserver
+
 # Switch to the steam user
 USER steam
 
 # Download and extract SteamCMD
 RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar xvfz -
+
+# Set the working directory to the sfserver directory
+ENV SF_SERVER_PATH=/home/steam/sfserver
+WORKDIR ${SF_SERVER_PATH}
 
 # Add Container Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=120s \
@@ -120,7 +128,7 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=120s \
       | jq -e '.data.health == "healthy"' || exit 1
 
 # Define Exposed Ports
-EXPOSE 15777/udp 15000/udp 7777/udp
+EXPOSE 15777/udp 15000/udp 7777/udp 7777/tcp
 
 # Execute init-server.sh on container startup using JSON format for ENTRYPOINT
 ENTRYPOINT ["/home/steam/init-server.sh"]

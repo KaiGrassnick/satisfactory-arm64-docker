@@ -12,17 +12,13 @@ services:
       - seccomp:unconfined
     user: "${DOCKER_USER}:${DOCKER_GROUP}"   # Set the user and group from environment variables (look the .env file)
     ports:
+      - '15777:15777/udp'
+      - '15000:15000/udp'
       - '7777:7777/udp'
       - '7777:7777/tcp'
     restart: 'unless-stopped'
     environment:
       - EXTRA_PARAMS=-log -unattended -ini:Engine:[HTTPServer.Listeners]:DefaultBindAddress=any
     volumes:
-      - './satisfactory:/satisfactory'
+      - './server-files:/home/steam/sfserver'
       - './config:/home/steam/.config/Epic'
-#    healthcheck:
-#      test: bash ./healthcheck.sh
-#      interval: 30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 120s
