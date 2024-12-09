@@ -56,7 +56,7 @@ WORKDIR /FEX/build
 
 # Compile FEX with Clang
 RUN CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LTO=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -G Ninja ..
-RUN ninja -w unknown-attributes
+RUN ninja
 RUN ninja install
 RUN ninja binfmt_misc
 RUN ninja binfmt_misc_64
