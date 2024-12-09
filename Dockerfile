@@ -1,4 +1,3 @@
-
 # Stage 1: Build stage (base image with all build dependencies)
 FROM ubuntu:22.04 AS build
 
@@ -57,13 +56,13 @@ WORKDIR /FEX/build
 
 # Compile FEX with Clang
 RUN CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LTO=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -G Ninja ..
-RUN ninja
+RUN ninja -Wunknown-attributes
 RUN ninja install
 RUN ninja binfmt_misc
 RUN ninja binfmt_misc_64
 
 # Stage 2: Runtime stage (slimmer image for final runtime)
-FROM ubuntu:22.04
+FROM ubuntu:22.04 AS runtime
 
 ARG DOCKER_USER
 ARG DOCKER_GROUP
@@ -83,16 +82,20 @@ RUN groupadd -g ${DOCKER_GROUP} steam \
 # Copy the compiled FEX from the build stage to the runtime stage
 COPY --from=build /usr /usr
 
+# Switch to the steam user
 USER steam
-# Install FEX root FS
-RUN bash -c "unbuffer FEXRootFSFetcher -y -x"
 
+# Install FEX root FS
+RUN unbuffer FEXRootFSFetcher -y -x
+
+# Switch to the root user
 USER root
 
 # Create the Steam directory and set ownership
 RUN mkdir -p /home/steam/Steam \
     && chown -R steam:steam /home/steam/Steam
 
+# Set the working directory to the Steam directory
 WORKDIR /home/steam/Steam
 
 # Copy init-server.sh to the steam user's home directory
@@ -103,11 +106,11 @@ RUN chown steam:steam /home/steam/init-server.sh \
     && chmod 755 /home/steam/init-server.sh \
     && chmod +x /home/steam/init-server.sh
 
-# Change to the steam user
+# Switch to the steam user
 USER steam
 
 # Download and extract SteamCMD
-RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar xvfz -
 
 # Add Container Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=120s \
@@ -117,7 +120,7 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=120s \
       | jq -e '.data.health == "healthy"' || exit 1
 
 # Define Exposed Ports
-EXPOSE 7777/udp 7777/tcp
+EXPOSE 15777/udp 15000/udp 7777/udp
 
 # Execute init-server.sh on container startup using JSON format for ENTRYPOINT
 ENTRYPOINT ["/home/steam/init-server.sh"]
