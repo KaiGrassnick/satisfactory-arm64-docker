@@ -110,7 +110,7 @@ USER steam
 RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
 # Add Container Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=120 \
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=120s \
   CMD curl -k -f -s -S -X POST "https://127.0.0.1:7777/api/v1" \
       -H "Content-Type: application/json" \
       -d '{"function":"HealthCheck","data":{"clientCustomData":""}}' \
