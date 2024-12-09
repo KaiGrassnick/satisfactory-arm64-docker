@@ -5,7 +5,8 @@ FROM ubuntu:22.04 AS build
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary build dependencies
-RUN apt update && apt install -y \
+RUN apt-get update \
+    && apt-get install -y \
     curl \
     python3 \
     sudo \
@@ -42,8 +43,8 @@ RUN apt update && apt install -y \
     libqt5qml5
 
 # Add FEX repository and clone the FEX repo
-RUN add-apt-repository -y ppa:fex-emu/fex && \
-    git clone --recurse-submodules https://github.com/FEX-Emu/FEX.git
+RUN add-apt-repository -y ppa:fex-emu/fex \
+    && git clone --recurse-submodules https://github.com/FEX-Emu/FEX.git
 
 WORKDIR /FEX
 
@@ -72,27 +73,35 @@ ENV DOCKER_GROUP=${DOCKER_GROUP}
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install only the necessary runtime dependencies
-RUN apt update && apt install -y curl sudo expect-dev binfmt-support systemd
+RUN apt-get update \
+    && apt-get install -y curl sudo expect-dev binfmt-support systemd jq
 
-# Create steam user
-RUN useradd -m -u ${DOCKER_USER} -g ${DOCKER_GROUP} steam
+# Create steam group and user
+RUN groupadd -g ${DOCKER_GROUP} steam \
+    && useradd -m -u ${DOCKER_USER} -g ${DOCKER_GROUP} steam
 
 # Copy the compiled FEX from the build stage to the runtime stage
 COPY --from=build /usr /usr
 
+USER steam
 # Install FEX root FS
-RUN sudo -u steam bash -c "unbuffer FEXRootFSFetcher -y -x"
+RUN bash -c "unbuffer FEXRootFSFetcher -y -x"
+
+USER root
+
+# Create the Steam directory and set ownership
+RUN mkdir -p /home/steam/Steam \
+    && chown -R steam:steam /home/steam/Steam
+
+WORKDIR /home/steam/Steam
 
 # Copy init-server.sh to the steam user's home directory
 COPY ./init-server.sh /home/steam/init-server.sh
 
 # Ensure proper ownership and set the script as executable
-RUN chown steam:steam /home/steam/init-server.sh && chmod 755 /home/steam/init-server.sh
-RUN chmod +x /home/steam/init-server.sh
-# Create the Steam directory and set ownership
-RUN mkdir -p /home/steam/Steam && chown -R steam:steam /home/steam/Steam
-
-WORKDIR /home/steam/Steam
+RUN chown steam:steam /home/steam/init-server.sh \
+    && chmod 755 /home/steam/init-server.sh \
+    && chmod +x /home/steam/init-server.sh
 
 # Change to the steam user
 USER steam
@@ -100,9 +109,14 @@ USER steam
 # Download and extract SteamCMD
 RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
-# Double-check permissions of init-server.sh
-RUN ls -alh /home/steam/init-server.sh
+# Add Container Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=120 \
+  CMD curl -k -f -s -S -X POST "https://127.0.0.1:7777/api/v1" \
+      -H "Content-Type: application/json" \
+      -d '{"function":"HealthCheck","data":{"clientCustomData":""}}' \
+      | jq -e '.data.health == "healthy"' || exit 1
 
+# Define Exposed Ports
 EXPOSE 7777/udp 7777/tcp
 
 # Execute init-server.sh on container startup using JSON format for ENTRYPOINT

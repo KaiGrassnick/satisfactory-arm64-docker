@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - DOCKER_USER=${DOCKER_USER}
+        - DOCKER_GROUP=${DOCKER_GROUP}
     image: 'satisfactory-arm64'
     container_name: 'satisfactory-server'
     security_opt:
@@ -17,9 +20,9 @@ services:
     volumes:
       - './satisfactory:/satisfactory'
       - './config:/home/steam/.config/Epic'
-    healthcheck:
-      test: bash ./healthcheck.sh
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 120s
+#    healthcheck:
+#      test: bash ./healthcheck.sh
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 120s
