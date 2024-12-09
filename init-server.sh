@@ -14,8 +14,10 @@ function installServer() {
 function main() {
   # Check if we have proper read/write permissions to /satisfactory
   if [ ! -r "${SF_SERVER_PATH}" ] || [ ! -w "${SF_SERVER_PATH}" ]; then
-    echo "ERROR: Missing read/write permissions to ${SF_SERVER_PATH}! Please run \"chown -R ${DOCKER_USER}:${DOCKER_GROUP} ${SF_SERVER_PATH}\" on host machine, then try again."
-    exit 1
+    echo "ERROR: Missing read/write permissions to ${SF_SERVER_PATH}!"
+    echo "Try to fix permissions..."
+    sudo chown -r "${SF_SERVER_PATH}" || echo "Could not fix permissions. Please run \"chown -R ${DOCKER_USER}:${DOCKER_GROUP} ${SF_SERVER_PATH}\" on host machine, then try again." && exit 1
+    echo "Permissions fixed!"
   fi
 
   # Check for SteamCMD updates
