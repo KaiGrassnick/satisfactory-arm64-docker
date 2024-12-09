@@ -1,1 +1,1 @@
-sudo docker exec -it satisfactory-server bash
+docker compose exec satisfactory-server bash

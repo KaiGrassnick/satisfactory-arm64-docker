@@ -2,52 +2,45 @@
 
 This Docker container provides a dedicated server for running Satisfactory on ARM64 architecture. It is based on [nitrog0d/palworld-arm64](https://github.com/nitrog0d/palworld-arm64).
 
----
-# !!! IMPORTANT (Updated for 1.0)!!!
-
-***The server will crash when trying to place down Conveyor Belts, see the following links:***
-
-- (Reddit) [[Dedicated Server] Everytime I try to put conveyor belts server crashes](https://www.reddit.com/r/SatisfactoryGame/comments/187py9k/dedicated_server_everytime_i_try_to_put_conveyor/)
-- (Satisfactory Q&A) [UPDATE 8 - UOBJECT MAX LIMIT CRASHES INCREASING - Early Access: 264901](https://questions.satisfactorygame.com/post/65613ca4d0053b102f18f4c2)
-
-Even by increasing the uobject limit wont fix this issue :(
+NOTE: This Repository is an enhanced an updated fork of [RisedSky/satisfactory-arm64-docker](https://github.com/RisedSky/satisfactory-arm64-docker), which itself was a fork of [sa-shiro/Satisfactory-Dedicated-Server-ARM64-Docker](https://github.com/sa-shiro/Satisfactory-Dedicated-Server-ARM64-Docker)
 
 ---
+
+## Reason for the fork
+The original Project by sa-shiro looked like it was not maintained anymore.
+
+The fork by RisedSky was a good start, but had some issues and was not updated for a while.
+
+I wanted to use the container for my own server, so I decided to fork it and implement fixes to make the build run correctly.
+
+During the progress, I encountered some issues and decided to improve the build process and the overall structure of the project.
+
+## Changes
+- Restructured the Dockerfile to decrease layer count and improve readability
+- Remove the need for sudo in the Dockerfile
+- Defined all the exposed ports in the Dockerfile
+- Changed some paths to make the container more user-friendly
+- Added the health check directly in the Dockerfile ( no need to use a separate script nor have jq installed on the host system )
+- Added the possibility to switch between public and experimental branch
+- Make use of named volumes instead of bind mounts
+  - This change made it possible to remove the need for correct user / group ids
+- Updated the init-server.sh script
+  - to use paths defined in Dockerfile
+  - link steam library only if it is not already linked
+  - allow to change between public and experimental branch
+- Remove build instruction from docker-compose.yml to make it more user-friendly and independent to use
+- Add volume for steam files to speed up the start of the container
 
 ## Getting Started
 
 1. **Download or Clone Repository**:
    Download or clone this repository to your desired folder, for example, `satisfactory-server`.
    ```sh
-   git clone https://github.com/RisedSky/satisfactory-arm64-docker.git
+   git clone https://github.com/KaiGrassnick/satisfactory-arm64-docker.git
    cd satisfactory-arm64-docker
    ```
 
-3. **Set Up Permissions**:
-   Create a folder named `satisfactory` and `config` (your savegame and server config will be stored in there) and grant full permissions to it:
-
-   - Using `chmod`:
-     ```sh
-     sudo chmod 777 satisfactory
-     sudo chmod 777 config
-     ```
-   - Using `chown` (replace **USER_ID:GROUP_ID** with the desired user's IDs, for example, `1000:1000`):
-     ```sh
-     sudo chown -R USER_ID:GROUP_ID satisfactory
-     sudo chown -R USER_ID:GROUP_ID config
-     ```
-     (On Oracle Cloud Infrastructure (OCI), by default, the user with the ID `1000:1000` is `opc`. However, since this user is primarily intended for the setup process, it is advisable to utilize the `ubuntu` user with IDs `1001:1001`)
-   - Change the file `.env` to set the user and the group id for the container :
-      To show the current user and group id :
-     ```sh
-     cat .env
-     ```
-     To edit it :
-     ```sh
-     vi .env
-     ```
-
-4. **Build the Docker Image**:
+2. **Build the Docker Image**:
    Run the build script:
 
    ```sh
@@ -56,34 +49,60 @@ Even by increasing the uobject limit wont fix this issue :(
 
    If execution permission is denied, grant it:
 
-   ```
+   ```sh
    chmod u+x build.sh
    ```
 
-5. **Run the Docker Image**:
+3. **Run the Docker Image**:
    After the build process completes, start the Docker image either by running:
 
-   ```
+   ```sh
    sh run.sh
    ```
 
    Or via Docker Compose in detached mode:
 
-   ```
-   sudo docker compose up -d
+   ```sh
+   docker compose up -d
    ```
 
-6. **Open Necessary Ports**:
+4. **Open Necessary Ports**:
    The following ports must be opened for the server to function properly:
 
-   - TCP: `7777`
-   - UDP: `7777`
-     Ensure these ports are open using the Linux firewall of your choice and also within the Security List of the Oracle Cloud Infrastructure Network.
+   - TCP:
+     - `7777`
+   - UDP:
+     - `7777`
+     - `15000`
+     - `15777`
 
-7. **Default Port**:
+   Ensure these ports are open using the Linux firewall of your choice and also within the Security List of the Oracle Cloud Infrastructure Network.
+
+5. **Default Port**:
    The default port for the server is `7777`.
 
 Now your Satisfactory Dedicated Server for ARM64 is ready!. Enjoy your gaming experience with friends.
+
+## Accessing the Server files
+In order to overcome any permission issues, the files are stored inside docker named volumes.
+
+This is defined in the `docker-compose.yml` file:
+```yml
+    volumes:
+      - 'server-files:/home/steam/sfserver'
+      - 'config:/home/steam/.config/Epic'
+```
+In order to access the files, you can enter the container via:
+```sh
+docker compose exec satisfactory-server bash
+```
+
+or run:
+```sh
+sh interactive-shell.sh
+```
+
+Then you can access the files in `/home/steam/sfserver` and `/home/steam/.config/Epic`.
 
 ## Modifying Server Port Configuration
 
@@ -116,4 +135,12 @@ If you want to check for game server updates, add the following to `docker-compo
 ```
 environment:
     - ALWAYS_UPDATE_ON_START=true
+```
+
+### Use Beta Branch
+
+If you want to change from public to experimental, add the following to `docker-compose.yml`:
+```
+environment:
+    - USE_EXPERIMENTAL=true
 ```

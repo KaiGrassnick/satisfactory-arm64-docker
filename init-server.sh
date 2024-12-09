@@ -14,7 +14,7 @@ function installServer() {
 function main() {
   # Check if we have proper read/write permissions to /satisfactory
   if [ ! -r "${SF_SERVER_PATH}" ] || [ ! -w "${SF_SERVER_PATH}" ]; then
-    echo "ERROR: Missing read/write permissions to ${SF_SERVER_PATH}! Please run \"chown -R ${DOCKER_USER}:${DOCKER_GROUP} ${SF_SERVER_PATH}\" on host machine, then try again."
+    echo "ERROR: Missing read/write permissions to ${SF_SERVER_PATH}! Please run \"chown -R ${DOCKER_USER}:${DOCKER_GROUP} <PATH-TO-MOUNTS>\" on host machine, then try again."
     exit 1
   fi
 

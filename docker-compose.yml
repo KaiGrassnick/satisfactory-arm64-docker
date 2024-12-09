@@ -1,16 +1,8 @@
 services:
   satisfactory-server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - DOCKER_USER=${DOCKER_USER}
-        - DOCKER_GROUP=${DOCKER_GROUP}
     image: 'satisfactory-arm64'
-    container_name: 'satisfactory-server'
     security_opt:
       - seccomp:unconfined
-    user: "${DOCKER_USER}:${DOCKER_GROUP}"   # Set the user and group from environment variables (look the .env file)
     ports:
       - '15777:15777/udp'
       - '15000:15000/udp'
@@ -20,9 +12,11 @@ services:
     environment:
       - EXTRA_PARAMS=-log -unattended -ini:Engine:[HTTPServer.Listeners]:DefaultBindAddress=any
     volumes:
+      - 'steam-files:/home/steam/Steam'
       - 'server-files:/home/steam/sfserver'
-      - 'config:/home/steam/.config/Epic'
+      - 'config:/home/steam/.config'
 
 volumes:
+  steam-files:
   server-files:
   config:

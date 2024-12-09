@@ -64,8 +64,8 @@ RUN ninja binfmt_misc_64
 # Stage 2: Runtime stage (slimmer image for final runtime)
 FROM ubuntu:22.04 AS runtime
 
-ARG DOCKER_USER
-ARG DOCKER_GROUP
+ARG DOCKER_USER=1000
+ARG DOCKER_GROUP=1000
 
 ENV DOCKER_USER=${DOCKER_USER}
 ENV DOCKER_GROUP=${DOCKER_GROUP}
