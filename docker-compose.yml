@@ -20,5 +20,9 @@ services:
     environment:
       - EXTRA_PARAMS=-log -unattended -ini:Engine:[HTTPServer.Listeners]:DefaultBindAddress=any
     volumes:
-      - './server-files:/home/steam/sfserver'
-      - './config:/home/steam/.config/Epic'
+      - 'server-files:/home/steam/sfserver'
+      - 'config:/home/steam/.config/Epic'
+
+volumes:
+  server-files:
+  config:
