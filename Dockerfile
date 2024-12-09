@@ -91,12 +91,11 @@ RUN unbuffer FEXRootFSFetcher -y -x
 # Switch to the root user
 USER root
 
-# Create the Steam directory and set ownership
-RUN mkdir -p /home/steam/Steam \
-    && chown -R steam:steam /home/steam/Steam
+ENV STEAM_PATH=/home/steam/Steam
 
-# Set the working directory to the Steam directory
-WORKDIR /home/steam/Steam
+# Create the Steam directory and set ownership
+RUN mkdir -p "${STEAM_PATH}" \
+    && chown -R steam:steam "${STEAM_PATH}"
 
 # Copy init-server.sh to the steam user's home directory
 COPY ./init-server.sh /home/steam/init-server.sh
@@ -112,6 +111,9 @@ RUN mkdir -p /home/steam/sfserver \
 
 # Switch to the steam user
 USER steam
+
+# Set the working directory to the Steam directory
+WORKDIR "${STEAM_PATH}"
 
 # Download and extract SteamCMD
 RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar xvfz -
