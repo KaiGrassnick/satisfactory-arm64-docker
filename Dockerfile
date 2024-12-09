@@ -73,7 +73,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install only the necessary runtime dependencies
 RUN apt-get update \
-    && apt-get install -y curl sudo expect-dev binfmt-support systemd jq
+    && apt-get install -y curl expect-dev binfmt-support systemd jq
 
 # Create steam group and user
 RUN groupadd -g ${DOCKER_GROUP} steam \
